@@ -4,3 +4,5 @@ A frame within a frame to look through - a polymathic project in public educatio
 a wearsyourlove production
 
 Created by Jackson Daniel Melenchuk
+
+Est. 2025
