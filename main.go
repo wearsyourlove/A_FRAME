@@ -1,19 +1,20 @@
 package main
 
+ackage main
+
 import (
     "crypto/sha256"
     "database/sql"
-    "encoding/json"
     "fmt"
     "log"
-    "net/http"
     "time"
 
     "github.com/gofiber/fiber/v2"
-    "github.com/gofiber/fiber/v2/middleware/session"
+    "github.com/gofiber/fiber/v2/middleware/cors"
     "github.com/gofiber/websocket/v2"
     _ "github.com/mattn/go-sqlite3"
 )
+
 func main() {
     app := fiber.New()
 
