@@ -30,6 +30,32 @@ func main() {
         return c.Next()
     })
 
+// API Topic Title 
+    app.Get("/api/topics/:title", func(c *fiber.Ctx) error {
+    topic := c.Params("title")
+
+    // Query the database for topic details
+    query := `
+        SELECT t.title, t.content, GROUP_CONCAT(links.url) 
+        FROM topics t
+        LEFT JOIN topic_links links ON t.id = links.topic_id
+        WHERE t.title = ?
+        GROUP BY t.id
+    `
+    var title, content, links string
+    err := db.QueryRow(query, topic).Scan(&title, &content, &links)
+    if err != nil {
+        return c.Status(404).JSON(fiber.Map{"error": "Topic not found"})
+    }
+
+    return c.JSON(fiber.Map{
+        "title": title,
+        "content": content,
+        "links":  links,
+    })
+})
+
+    
     // API Endpoint: Get All Topics
     app.Get("/api/topics", func(c *fiber.Ctx) error {
         log.Println("Received request for /api/topics")
