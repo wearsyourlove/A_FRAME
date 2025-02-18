@@ -20,10 +20,10 @@ func main() {
 
     // Enable CORS (Fixes issues with browser requests via NGINX)
     app.Use(cors.New(cors.Config{
-        AllowOrigins: "*",
-        AllowMethods: "GET,POST,OPTIONS",
-        AllowHeaders: "Content-Type",
-    }))
+    AllowOrigins: "*",
+    AllowMethods: "GET,POST,OPTIONS,DELETE,PUT",
+    AllowHeaders: "Content-Type, Authorization",
+}))
 
     db, err := sql.Open("sqlite3", "/var/lib/wylxyz/knowledge.db")
     if err != nil {
