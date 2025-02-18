@@ -17,7 +17,7 @@
         }
         .ascii-container {
             white-space: pre-wrap;
-            font-size: 1.2vw; /* Adjusts size based on window width */
+            font-size: 1.2vw;
             display: inline-block;
             text-align: left;
         }
@@ -33,7 +33,7 @@
     <div id="terminal"></div>
     <h3>a polymathic project in public education through an alchemy of disciplines</h3>
 
-      <pre class="ascii-container">
+          <pre class="ascii-container">
 ··············································································
 :                                                                            :
 :                                                                            :
@@ -131,7 +131,7 @@
     term.writeln("Welcome to wearsyourlove.");
     term.writeln("Type a command to explore knowledge:");
     term.writeln("> explore topics");
-
+    
     let commandBuffer = "";
 
     term.onKey(e => {
@@ -154,27 +154,39 @@
 
     function processCommand(command) {
         if (command.trim() === "explore topics") {
-            fetch('/api/topics')
-                .then(response => response.json())
+            fetch('https://wyl.xyz/api/topics')
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
                 .then(data => {
                     term.writeln("Available Topics:");
                     data.forEach(topic => term.writeln("- " + topic.title));
                 })
-                .catch(err => term.writeln("Error fetching topics."));
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                    term.writeln("Error fetching topics.");
+                });
         } else if (command.startsWith("explore ")) {
             let topic = command.replace("explore ", "").trim();
-            fetch(`/api/related/${encodeURIComponent(topic)}`)
-                .then(response => response.json())
+            fetch(`https://wyl.xyz/api/related/${encodeURIComponent(topic)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.json();
+                })
                 .then(data => {
                     term.writeln("Related Topics:");
                     data.forEach(entry => term.writeln("- " + entry.related_1 + " & " + entry.related_2));
                 })
-                .catch(err => term.writeln("No related topics found."));
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                    term.writeln("No related topics found.");
+                });
         } else {
             term.writeln("Unknown command. Try 'explore topics' or 'explore [topic]'");
         }
         term.write("> ");
     }
-</script>
+    </script>
 </body>
 </html>
