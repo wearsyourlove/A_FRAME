@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WYL</title>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
     <style>
         body {
             background-color: black;
@@ -18,16 +21,19 @@
             display: inline-block;
             text-align: left;
         }
-        h1 {
-            font-size: 2em;
+        #terminal {
+            width: 80%;
+            height: 300px;
+            border: 1px solid white;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
+    <div id="terminal"></div>
     <h3>a polymathic project in public education through an alchemy of disciplines</h3>
 
-    <!-- Updated ASCII Art -->
-    <pre class="ascii-container">
+      <pre class="ascii-container">
 ··············································································
 :                                                                            :
 :                                                                            :
@@ -114,5 +120,31 @@
 :                                                                            :
 ··············································································
     </pre>
+    
+    <script>
+        const term = new Terminal();
+        const fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+        term.open(document.getElementById('terminal'));
+        fitAddon.fit();
+
+        term.writeln("Welcome to wearsyourlove.");
+        term.writeln("Type a command to explore knowledge:");
+        term.writeln("> explore topics");
+
+        term.onData(async function(input) {
+            if (input.trim() === "explore topics") {
+                fetch('/api/topics')
+                    .then(response => response.json())
+                    .then(data => {
+                        term.writeln("Available Topics:");
+                        data.forEach(topic => term.writeln("- " + topic.title));
+                    })
+                    .catch(err => term.writeln("Error fetching topics."));
+            } else {
+                term.writeln("Unknown command. Try 'explore topics'");
+            }
+        });
+    </script>
 </body>
 </html>
