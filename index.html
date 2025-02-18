@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WYL</title>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        #terminal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            height: 60vh;
+        }
+        #terminal {
+            width: 80%;
+            max-width: 80%;
+            height: 300px;
+            border: 1px solid white;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h3>a polymathic project in public education through an alchemy of disciplines</h3>
+    <div id="terminal-container">
+        <div id="terminal"></div>
+    </div>
+    <script>
+    const term = new Terminal();
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+
+    term.writeln("Welcome to wearsyourlove.");
+    term.writeln("Type a command to explore knowledge:");
+    term.writeln("> explore topics");
+    
+    let commandBuffer = "";
+
+    term.onKey(e => {
+        const char = e.key;
+
+        if (char === '\r') { // Enter key
+            term.writeln(""); // Move to a new line
+            processCommand(commandBuffer);
+            commandBuffer = ""; // Clear buffer after execution
+        } else if (char === '\x7F') { // Backspace key
+            if (commandBuffer.length > 0) {
+                commandBuffer = commandBuffer.slice(0, -1);
+                term.write('\b \b'); // Remove character visually
+            }
+        } else if (char.length === 1) { // Normal character input
+            commandBuffer += char;
+            term.write(char);
+        }
+    });
+
+    function processCommand(command) {
+        command = command.trim().toLowerCase();
+        
+        if (command === "help") {
+            term.writeln("Available commands:");
+            term.writeln("- explore topics");
+            term.writeln("- about");
+            term.writeln("- notes");
+            term.writeln("- favourites");
+            term.writeln("- chat");
+            term.writeln("- read [topic]");
+        } else if (command === "about") {
+            term.writeln("wears your love is a polymathic knowledge platform connecting art, science, and spirituality.");
+        } else if (command === "notes") {
+            fetch('/api/notes')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Your Notes:");
+                    if (data.length === 0) term.writeln("(No notes saved)");
+                    data.forEach((note, index) => term.writeln(`${index + 1}. ${note.content}`));
+                })
+                .catch(err => term.writeln("Error fetching notes."));
+        } else if (command.startsWith("add note ")) {
+            let noteContent = command.replace("add note ", "").trim();
+            fetch('/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: noteContent })
+            }).then(() => term.writeln("Note saved."))
+              .catch(() => term.writeln("Error saving note."));
+        } else if (command === "favourites") {
+            fetch('/api/favourites')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Your Favourite Topics:");
+                    if (data.length === 0) term.writeln("(No favourites saved)");
+                    data.forEach((fav, index) => term.writeln(`${index + 1}. ${fav.topic}`));
+                })
+                .catch(err => term.writeln("Error fetching favourites."));
+        } else if (command.startsWith("add favourite ")) {
+            let favTopic = command.replace("add favourite ", "").trim();
+            fetch('/api/favourites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: favTopic })
+            }).then(() => term.writeln("Added to favourites."))
+              .catch(() => term.writeln("Error saving favourite."));
+        } else if (command.startsWith("read ")) {
+            let topic = command.replace("read ", "").trim();
+            fetch(`/api/topics/${encodeURIComponent(topic)}`)
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln(`Topic: ${data.title}`);
+                    term.writeln("Research & Sources:");
+                    term.writeln(data.content);
+                    data.links.forEach(link => term.writeln(`- ${link}`));
+                })
+                .catch(err => term.writeln("Error fetching topic details."));
+        } else if (command === "chat") {
+            term.writeln("Feature coming soon: Real-time chat system.");
+             
+        } else if (command === "explore topics") {
+            fetch('https://wyl.xyz/api/topics')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Available Topics:");
+                    data.forEach(topic => term.writeln("- " + topic.title));
+                })
+                .catch(err => term.writeln("Error fetching topics."));
+
+        } else {
+            term.writeln("Unknown command. Try 'help' for available commands.");
+        }
+        term.write("> ");
+    }
+    </script>
+</body>
+</html>
