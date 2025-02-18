@@ -42,6 +42,7 @@
     <h3>a polymathic project in public education through an alchemy of disciplines</h3>
     <div id="terminal-container">
         <div id="terminal"></div>
+    </div>
     <script>
     const term = new Terminal();
     const fitAddon = new FitAddon.FitAddon();
@@ -54,6 +55,7 @@
     term.writeln("> explore topics");
     
     let commandBuffer = "";
+
     term.onKey(e => {
         const char = e.key;
 
@@ -81,36 +83,57 @@
             term.writeln("- about");
             term.writeln("- notes");
             term.writeln("- favourites");
-            term.writeln("- random");
-            term.writeln("- read");
             term.writeln("- chat");
+            term.writeln("- read [topic]");
         } else if (command === "about") {
             term.writeln("wears your love is a polymathic knowledge platform connecting art, science, and spirituality.");
         } else if (command === "notes") {
-            term.writeln("Feature coming soon: Save and retrieve your personal notes.");
-        } else if (command === "favourites") {
-            term.writeln("Feature coming soon: Mark and access your favourite topics.");
-        } else if (command === "random") {
-            fetch('https://wyl.xyz/api/random')
-                .then(response => response.json())
-                .then(data => term.writeln("Random Topic: " + data.title))
-                .catch(err => term.writeln("Error fetching random topic."));
-        } else if (command.startsWith("read ")) {
-            let topic = command.replace("read ", "").trim();
-            fetch(`https://wyl.xyz/api/read/${encodeURIComponent(topic)}`)
-                .then(response => response.json())
-                .then(data => term.writeln("Reading: " + data.content))
-                .catch(err => term.writeln("Error fetching content."));
-        } else if (command === "chat") {
-            term.writeln("Feature coming soon: Engage in discussions with others.");
-        } else if (command === "explore topics") {
-            fetch('https://wyl.xyz/api/topics')
+            fetch('/api/notes')
                 .then(response => response.json())
                 .then(data => {
-                    term.writeln("Available Topics:");
-                    data.forEach(topic => term.writeln("- " + topic.title));
+                    term.writeln("Your Notes:");
+                    if (data.length === 0) term.writeln("(No notes saved)");
+                    data.forEach((note, index) => term.writeln(`${index + 1}. ${note.content}`));
                 })
-                .catch(err => term.writeln("Error fetching topics."));
+                .catch(err => term.writeln("Error fetching notes."));
+        } else if (command.startsWith("add note ")) {
+            let noteContent = command.replace("add note ", "").trim();
+            fetch('/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: noteContent })
+            }).then(() => term.writeln("Note saved."))
+              .catch(() => term.writeln("Error saving note."));
+        } else if (command === "favourites") {
+            fetch('/api/favourites')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Your Favourite Topics:");
+                    if (data.length === 0) term.writeln("(No favourites saved)");
+                    data.forEach((fav, index) => term.writeln(`${index + 1}. ${fav.topic}`));
+                })
+                .catch(err => term.writeln("Error fetching favourites."));
+        } else if (command.startsWith("add favourite ")) {
+            let favTopic = command.replace("add favourite ", "").trim();
+            fetch('/api/favourites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: favTopic })
+            }).then(() => term.writeln("Added to favourites."))
+              .catch(() => term.writeln("Error saving favourite."));
+        } else if (command.startsWith("read ")) {
+            let topic = command.replace("read ", "").trim();
+            fetch(`/api/topics/${encodeURIComponent(topic)}`)
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln(`Topic: ${data.title}`);
+                    term.writeln("Research & Sources:");
+                    term.writeln(data.content);
+                    data.links.forEach(link => term.writeln(`- ${link}`));
+                })
+                .catch(err => term.writeln("Error fetching topic details."));
+        } else if (command === "chat") {
+            term.writeln("Feature coming soon: Real-time chat system.");
         } else {
             term.writeln("Unknown command. Try 'help' for available commands.");
         }
