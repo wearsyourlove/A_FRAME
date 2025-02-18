@@ -29,7 +29,44 @@ func main() {
         log.Println("Incoming request:", c.Method(), c.Path())
         return c.Next()
     })
+   
+    //User Login
+    app.Post("/api/login", func(c *fiber.Ctx) error {
+    var data struct {
+        Username string `json:"username"`
+    }
+    if err := c.BodyParser(&data); err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+    }
 
+    // Generate a random session token
+    token := fmt.Sprintf("%x", sha256.Sum256([]byte(data.Username+time.Now().String())))
+
+    _, err := db.Exec("INSERT INTO sessions (username, token) VALUES (?, ?)", data.Username, token)
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{"error": "Failed to create session"})
+    }
+
+    return c.JSON(fiber.Map{"token": token})
+})
+
+
+
+    
+    //IIRC CHAT 
+    app.Get("/api/chat/:topic", websocket.New(func(c *websocket.Conn) {
+    topic := c.Params("topic")
+    for {
+        _, msg, err := c.ReadMessage()
+        if err != nil {
+            break
+        }
+        log.Printf("[Chat - %s] %s\n", topic, string(msg))
+        c.WriteMessage(websocket.TextMessage, []byte(msg))
+    }
+}))
+
+    
 // API Topic Title 
     app.Get("/api/topics/:title", func(c *fiber.Ctx) error {
     topic := c.Params("title")
