@@ -12,8 +12,13 @@
             background-color: black;
             color: white;
             font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
             text-align: center;
-            padding: 20px;
         }
         .ascii-container {
             white-space: pre-wrap;
@@ -21,8 +26,15 @@
             display: inline-block;
             text-align: left;
         }
+        #terminal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
         #terminal {
             width: 80%;
+            max-width: 800px;
             height: 300px;
             border: 1px solid white;
             margin-bottom: 20px;
@@ -30,10 +42,11 @@
     </style>
 </head>
 <body>
-    <div id="terminal"></div>
     <h3>a polymathic project in public education through an alchemy of disciplines</h3>
-
-          <pre class="ascii-container">
+    <div id="terminal-container">
+        <div id="terminal"></div>
+    </div>
+      <pre class="ascii-container">
 ··············································································
 :                                                                            :
 :                                                                            :
@@ -119,7 +132,7 @@
 :     `'-'  '---'   '---'                  `-'  `--'  `'---'  '---'   '---'  :
 :                                                                            :
 ··············································································
-    </pre>
+    </pre> 
     
     <script>
     const term = new Terminal();
@@ -153,49 +166,46 @@
     });
 
     function processCommand(command) {
-        if (command.trim() === "explore topics") {
+        command = command.trim().toLowerCase();
+        
+        if (command === "help") {
+            term.writeln("Available commands:");
+            term.writeln("- explore topics");
+            term.writeln("- about");
+            term.writeln("- notes");
+            term.writeln("- favourites");
+            term.writeln("- random");
+            term.writeln("- read");
+            term.writeln("- chat");
+        } else if (command === "about") {
+            term.writeln("wears your love is a polymathic knowledge platform connecting art, science, and spirituality.");
+        } else if (command === "notes") {
+            term.writeln("Feature coming soon: Save and retrieve your personal notes.");
+        } else if (command === "favourites") {
+            term.writeln("Feature coming soon: Mark and access your favourite topics.");
+        } else if (command === "random") {
+            fetch('https://wyl.xyz/api/random')
+                .then(response => response.json())
+                .then(data => term.writeln("Random Topic: " + data.title))
+                .catch(err => term.writeln("Error fetching random topic."));
+        } else if (command.startsWith("read ")) {
+            let topic = command.replace("read ", "").trim();
+            fetch(`https://wyl.xyz/api/read/${encodeURIComponent(topic)}`)
+                .then(response => response.json())
+                .then(data => term.writeln("Reading: " + data.content))
+                .catch(err => term.writeln("Error fetching content."));
+        } else if (command === "chat") {
+            term.writeln("Feature coming soon: Engage in discussions with others.");
+        } else if (command === "explore topics") {
             fetch('https://wyl.xyz/api/topics')
-                .then(response => response.text()) // Read response as text first
-                .then(text => {
-                    try {
-                        console.log("Raw API response:", text);
-                        return JSON.parse(text);
-                    } catch (error) {
-                        console.error("JSON Parse Error:", text);
-                        throw new Error("Invalid JSON response from server.");
-                    }
-                })
+                .then(response => response.json())
                 .then(data => {
                     term.writeln("Available Topics:");
                     data.forEach(topic => term.writeln("- " + topic.title));
                 })
-                .catch(err => {
-                    console.error("Fetch error:", err);
-                    term.writeln("Error fetching topics.");
-                });
-        } else if (command.startsWith("explore ")) {
-            let topic = command.replace("explore ", "").trim();
-            fetch(`https://wyl.xyz/api/related/${encodeURIComponent(topic)}`)
-                .then(response => response.text())
-                .then(text => {
-                    try {
-                        console.log("Raw API response:", text);
-                        return JSON.parse(text);
-                    } catch (error) {
-                        console.error("JSON Parse Error:", text);
-                        throw new Error("Invalid JSON response from server.");
-                    }
-                })
-                .then(data => {
-                    term.writeln("Related Topics:");
-                    data.forEach(entry => term.writeln("- " + entry.related_1 + " & " + entry.related_2));
-                })
-                .catch(err => {
-                    console.error("Fetch error:", err);
-                    term.writeln("No related topics found.");
-                });
+                .catch(err => term.writeln("Error fetching topics."));
         } else {
-            term.writeln("Unknown command. Try 'explore topics' or 'explore [topic]'");
+            term.writeln("Unknown command. Try 'help' for available commands.");
         }
         term.write("> ");
     }
