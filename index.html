@@ -134,6 +134,16 @@
                 .catch(err => term.writeln("Error fetching topic details."));
         } else if (command === "chat") {
             term.writeln("Feature coming soon: Real-time chat system.");
+             
+        } else if (command === "explore topics") {
+            fetch('https://wyl.xyz/api/topics')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Available Topics:");
+                    data.forEach(topic => term.writeln("- " + topic.title));
+                })
+                .catch(err => term.writeln("Error fetching topics."));
+
         } else {
             term.writeln("Unknown command. Try 'help' for available commands.");
         }
