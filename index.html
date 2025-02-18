@@ -155,9 +155,15 @@
     function processCommand(command) {
         if (command.trim() === "explore topics") {
             fetch('https://wyl.xyz/api/topics')
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
+                .then(response => response.text()) // Read response as text first
+                .then(text => {
+                    try {
+                        console.log("Raw API response:", text);
+                        return JSON.parse(text);
+                    } catch (error) {
+                        console.error("JSON Parse Error:", text);
+                        throw new Error("Invalid JSON response from server.");
+                    }
                 })
                 .then(data => {
                     term.writeln("Available Topics:");
@@ -170,9 +176,15 @@
         } else if (command.startsWith("explore ")) {
             let topic = command.replace("explore ", "").trim();
             fetch(`https://wyl.xyz/api/related/${encodeURIComponent(topic)}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.json();
+                .then(response => response.text())
+                .then(text => {
+                    try {
+                        console.log("Raw API response:", text);
+                        return JSON.parse(text);
+                    } catch (error) {
+                        console.error("JSON Parse Error:", text);
+                        throw new Error("Invalid JSON response from server.");
+                    }
                 })
                 .then(data => {
                     term.writeln("Related Topics:");
