@@ -51,7 +51,94 @@
         <div id="terminal"></div>
     </div>
     
-          <pre class="ascii-container">
+         
+    <script>
+    const term = new Terminal();
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+
+    term.writeln("Welcome to wearsyourlove.");
+    term.writeln("Type a command to explore knowledge:");
+    term.writeln("> explore topics");
+    term.writeln(" ");
+    term.writeln("  __/\\______________/\\__/\\______________/\\________/\\_________");
+    term.writeln("  __\/\\_____________\/\\_\/\\_____________\///\\____/\\\/_________");
+    term.writeln("  ___\/\\_____________\/\\_\/\\_______________\///\\\/\\\/__________");
+    term.writeln("  ____\//\\____/\\\____/\\\__\/\\_________________\///\\\/___________");
+    term.writeln("  ______\//\\__/\\\\\__/\\\___\/\\___________________\/\\\___________");
+    term.writeln("  ________\//\\\/\\\/\\\/\\\____\/\\___________________\/\\\__________");
+    term.writeln("  __________\//\\\\\\//\\\\\_____\/\\___________________\/\\\_________");
+    term.writeln("  ____________\//\\\__\//\\\______\/\\\\\\\\\\\\\\\\_______\/\\\________");
+    term.writeln("  ______________\///____\///_______\///////////////________\///________");
+    
+    let commandBuffer = "";
+    term.onKey(e => {
+        const char = e.key;
+
+        if (char === '\r') { // Enter key
+            term.writeln(""); // Move to a new line
+            processCommand(commandBuffer);
+            commandBuffer = ""; // Clear buffer after execution
+        } else if (char === '\x7F') { // Backspace key
+            if (commandBuffer.length > 0) {
+                commandBuffer = commandBuffer.slice(0, -1);
+                term.write('\b \b'); // Remove character visually
+            }
+        } else if (char.length === 1) { // Normal character input
+            commandBuffer += char;
+            term.write(char);
+        }
+    });
+
+    function processCommand(command) {
+        command = command.trim().toLowerCase();
+        
+        if (command === "help") {
+            term.writeln("Available commands:");
+            term.writeln("- explore topics");
+            term.writeln("- about");
+            term.writeln("- notes");
+            term.writeln("- favourites");
+            term.writeln("- random");
+            term.writeln("- read");
+            term.writeln("- chat");
+        } else if (command === "about") {
+            term.writeln("wears your love is a polymathic knowledge platform connecting art, science, and spirituality.");
+        } else if (command === "notes") {
+            term.writeln("Feature coming soon: Save and retrieve your personal notes.");
+        } else if (command === "favourites") {
+            term.writeln("Feature coming soon: Mark and access your favourite topics.");
+        } else if (command === "random") {
+            fetch('https://wyl.xyz/api/random')
+                .then(response => response.json())
+                .then(data => term.writeln("Random Topic: " + data.title))
+                .catch(err => term.writeln("Error fetching random topic."));
+        } else if (command.startsWith("read ")) {
+            let topic = command.replace("read ", "").trim();
+            fetch(`https://wyl.xyz/api/read/${encodeURIComponent(topic)}`)
+                .then(response => response.json())
+                .then(data => term.writeln("Reading: " + data.content))
+                .catch(err => term.writeln("Error fetching content."));
+        } else if (command === "chat") {
+            term.writeln("Feature coming soon: Engage in discussions with others.");
+        } else if (command === "explore topics") {
+            fetch('https://wyl.xyz/api/topics')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Available Topics:");
+                    data.forEach(topic => term.writeln("- " + topic.title));
+                })
+                .catch(err => term.writeln("Error fetching topics."));
+        } else {
+            term.writeln("Unknown command. Try 'help' for available commands.");
+        }
+        term.write("> ");
+    }
+    </script>
+
+     <pre class="ascii-container">
 ··············································································
 :                                                                            :
 :                                                                            :
@@ -139,90 +226,5 @@
 ··············································································
     </pre>
     
-    <script>
-    const term = new Terminal();
-    const fitAddon = new FitAddon.FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(document.getElementById('terminal'));
-    fitAddon.fit();
-
-    term.writeln("Welcome to wearsyourlove.");
-    term.writeln("Type a command to explore knowledge:");
-    term.writeln("> explore topics");
-    term.writeln(" ");
-    term.writeln("  __/\\______________/\\__/\\______________/\\________/\\_________");
-    term.writeln("  __\/\\_____________\/\\_\/\\_____________\///\\____/\\\/_________");
-    term.writeln("  ___\/\\_____________\/\\_\/\\_______________\///\\\/\\\/__________");
-    term.writeln("  ____\//\\____/\\\____/\\\__\/\\_________________\///\\\/___________");
-    term.writeln("  ______\//\\__/\\\\\__/\\\___\/\\___________________\/\\\___________");
-    term.writeln("  ________\//\\\/\\\/\\\/\\\____\/\\___________________\/\\\__________");
-    term.writeln("  __________\//\\\\\\//\\\\\_____\/\\___________________\/\\\_________");
-    term.writeln("  ____________\//\\\__\//\\\______\/\\\\\\\\\\\\\\\\_______\/\\\________");
-    term.writeln("  ______________\///____\///_______\///////////////________\///________");
-    
-    let commandBuffer = "";
-    term.onKey(e => {
-        const char = e.key;
-
-        if (char === '\r') { // Enter key
-            term.writeln(""); // Move to a new line
-            processCommand(commandBuffer);
-            commandBuffer = ""; // Clear buffer after execution
-        } else if (char === '\x7F') { // Backspace key
-            if (commandBuffer.length > 0) {
-                commandBuffer = commandBuffer.slice(0, -1);
-                term.write('\b \b'); // Remove character visually
-            }
-        } else if (char.length === 1) { // Normal character input
-            commandBuffer += char;
-            term.write(char);
-        }
-    });
-
-    function processCommand(command) {
-        command = command.trim().toLowerCase();
-        
-        if (command === "help") {
-            term.writeln("Available commands:");
-            term.writeln("- explore topics");
-            term.writeln("- about");
-            term.writeln("- notes");
-            term.writeln("- favourites");
-            term.writeln("- random");
-            term.writeln("- read");
-            term.writeln("- chat");
-        } else if (command === "about") {
-            term.writeln("wears your love is a polymathic knowledge platform connecting art, science, and spirituality.");
-        } else if (command === "notes") {
-            term.writeln("Feature coming soon: Save and retrieve your personal notes.");
-        } else if (command === "favourites") {
-            term.writeln("Feature coming soon: Mark and access your favourite topics.");
-        } else if (command === "random") {
-            fetch('https://wyl.xyz/api/random')
-                .then(response => response.json())
-                .then(data => term.writeln("Random Topic: " + data.title))
-                .catch(err => term.writeln("Error fetching random topic."));
-        } else if (command.startsWith("read ")) {
-            let topic = command.replace("read ", "").trim();
-            fetch(`https://wyl.xyz/api/read/${encodeURIComponent(topic)}`)
-                .then(response => response.json())
-                .then(data => term.writeln("Reading: " + data.content))
-                .catch(err => term.writeln("Error fetching content."));
-        } else if (command === "chat") {
-            term.writeln("Feature coming soon: Engage in discussions with others.");
-        } else if (command === "explore topics") {
-            fetch('https://wyl.xyz/api/topics')
-                .then(response => response.json())
-                .then(data => {
-                    term.writeln("Available Topics:");
-                    data.forEach(topic => term.writeln("- " + topic.title));
-                })
-                .catch(err => term.writeln("Error fetching topics."));
-        } else {
-            term.writeln("Unknown command. Try 'help' for available commands.");
-        }
-        term.write("> ");
-    }
-    </script>
 </body>
 </html>
