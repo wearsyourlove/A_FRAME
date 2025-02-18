@@ -122,29 +122,59 @@
     </pre>
     
     <script>
-        const term = new Terminal();
-        const fitAddon = new FitAddon.FitAddon();
-        term.loadAddon(fitAddon);
-        term.open(document.getElementById('terminal'));
-        fitAddon.fit();
+    const term = new Terminal();
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
 
-        term.writeln("Welcome to wearsyourlove.");
-        term.writeln("Type a command to explore knowledge:");
-        term.writeln("> explore topics");
+    term.writeln("Welcome to wearsyourlove.");
+    term.writeln("Type a command to explore knowledge:");
+    term.writeln("> explore topics");
 
-        term.onData(async function(input) {
-            if (input.trim() === "explore topics") {
-                fetch('/api/topics')
-                    .then(response => response.json())
-                    .then(data => {
-                        term.writeln("Available Topics:");
-                        data.forEach(topic => term.writeln("- " + topic.title));
-                    })
-                    .catch(err => term.writeln("Error fetching topics."));
-            } else {
-                term.writeln("Unknown command. Try 'explore topics'");
+    let commandBuffer = "";
+
+    term.onKey(e => {
+        const char = e.key;
+
+        if (char === '\r') { // Enter key
+            term.writeln(""); // Move to a new line
+            processCommand(commandBuffer);
+            commandBuffer = ""; // Clear buffer after execution
+        } else if (char === '\x7F') { // Backspace key
+            if (commandBuffer.length > 0) {
+                commandBuffer = commandBuffer.slice(0, -1);
+                term.write('\b \b'); // Remove character visually
             }
-        });
-    </script>
+        } else if (char.length === 1) { // Normal character input
+            commandBuffer += char;
+            term.write(char);
+        }
+    });
+
+    function processCommand(command) {
+        if (command.trim() === "explore topics") {
+            fetch('/api/topics')
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Available Topics:");
+                    data.forEach(topic => term.writeln("- " + topic.title));
+                })
+                .catch(err => term.writeln("Error fetching topics."));
+        } else if (command.startsWith("explore ")) {
+            let topic = command.replace("explore ", "").trim();
+            fetch(`/api/related/${encodeURIComponent(topic)}`)
+                .then(response => response.json())
+                .then(data => {
+                    term.writeln("Related Topics:");
+                    data.forEach(entry => term.writeln("- " + entry.related_1 + " & " + entry.related_2));
+                })
+                .catch(err => term.writeln("No related topics found."));
+        } else {
+            term.writeln("Unknown command. Try 'explore topics' or 'explore [topic]'");
+        }
+        term.write("> ");
+    }
+</script>
 </body>
 </html>
