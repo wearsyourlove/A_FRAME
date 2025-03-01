@@ -1,17 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* 🔹 Terminal Aesthetic */
-body {
-    @apply bg-black text-green-400 font-mono;
+/* 🔹 Reset Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+/* 🔹 Dark Mode by Default */
+body.theme-dark {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: monospace;
+}
+
+/* 🔹 Terminal Box */
 .terminal-box {
-    @apply border border-gray-600 p-4 w-full max-w-4xl mx-auto mt-10 rounded-md bg-gray-900 shadow-lg;
+    width: 90%;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    border: 2px solid white;
+    background: rgba(0, 0, 0, 0.8);
 }
 
-/* 🔹 Hovering UI Elements */
-.hover-box {
-    @apply absolute bg-gray-800 border border-white rounded-md p-2 hidden;
+/* 🔹 Terminal Input */
+#command-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+/* 🔹 Floating Frames */
+.frame-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+}
+
+.floating-box {
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    border: 2px solid white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 🔹 Floating Animations */
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+.floating-box {
+    animation: float 3s infinite ease-in-out;
 }
