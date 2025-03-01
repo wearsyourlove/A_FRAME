@@ -1,1 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 🔹 Terminal Aesthetic */
+body {
+    @apply bg-black text-green-400 font-mono;
+}
+
+.terminal-box {
+    @apply border border-gray-600 p-4 w-full max-w-4xl mx-auto mt-10 rounded-md bg-gray-900 shadow-lg;
+}
+
+/* 🔹 Hovering UI Elements */
+.hover-box {
+    @apply absolute bg-gray-800 border border-white rounded-md p-2 hidden;
+}
