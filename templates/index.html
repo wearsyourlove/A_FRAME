@@ -4,23 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>wears your love</title>
+
+    <!-- 🔹 CSS -->
+    <link rel="stylesheet" href="static/styles.css">
+
+    <!-- 🔹 JS -->
     <script src="static/api.js" defer></script>
     <script src="static/terminal.js" defer></script>
     <script src="static/themes.js" defer></script>
     <script src="static/animations.js" defer></script>
-    <link rel="stylesheet" href="node_modules/tachyons/css/tachyons.min.css">
-    <link rel="stylesheet" href="static/styles.css">
 </head>
-
 <body class="theme-dark">
+
+    <!-- 🔹 Terminal Box -->
     <div id="terminal" class="terminal-box">
         <div id="output"></div>
         <input type="text" id="command-input" autofocus>
-<div class="pa4 bg-dark-gray white br3">
-    Welcome to wears your love!
-</div>
-
-        
     </div>
+
+    <!-- 🔹 Floating Interactive Frames -->
+    <div class="frame-container">
+        <div class="frame floating-box" id="frame-1"></div>
+        <div class="frame floating-box" id="frame-2"></div>
+        <div class="frame floating-box" id="frame-3"></div>
+    </div>
+
 </body>
 </html>
