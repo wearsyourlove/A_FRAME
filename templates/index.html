@@ -9,27 +9,29 @@
     <link rel="stylesheet" href="static/styles.css">
 
     <!-- 🔹 JS -->
+    <script src="static/themes.js" defer></script>
     <script src="static/api.js" defer></script>
     <script src="static/terminal.js" defer></script>
-    <script src="static/themes.js" defer></script>
     <script src="static/animations.js" defer></script>
+
 </head>
 <body class="theme-dark">
 
-    <!-- 🔹 Terminal Box -->
+    <!-- 🔹 Terminal UI -->
     <div id="terminal" class="terminal-box">
         <div id="output"></div>
-        <input type="text" id="command-input" autofocus placeholder="Type a command...">
+        <input type="text" id="command-input" autofocus placeholder="Type a command and press Enter...">
     </div>
 
-    <!-- 🔹 Floating Interactive Frames -->
+    <!-- 🔹 Floating Interactive Frames (Centered) -->
     <div class="frame-container">
-        <div class="frame floating-box hover-box" id="frame-1"></div>
-        <div class="frame floating-box hover-box" id="frame-2"></div>
-        <div class="frame floating-box hover-box" id="frame-3"></div>
+        <div class="frame floating-box" id="frame-1"></div>
+        <div class="frame floating-box" id="frame-2"></div>
+        <div class="frame floating-box" id="frame-3"></div>
+        <div class="frame floating-box" id="frame-4"></div>
     </div>
 
-    <!-- 🔹 Search Results Container -->
+    <!-- 🔹 Search Results -->
     <div id="search-results" class="results-container"></div>
 
 </body>
